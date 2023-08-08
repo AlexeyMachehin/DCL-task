@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { data } from './mock-data';
 import { NonNullableFormBuilder, Validators } from '@angular/forms';
-import { Car, CarPeriod, Category, Period } from './data-type';
+import { Car, Category } from './data-type';
 
 @Component({
   selector: 'app-root',
@@ -65,41 +65,36 @@ export class AppComponent implements OnInit {
     const choosedCar = this.getCarsList(category).find(
       currentCar => currentCar.name === car,
     );
-  
+
     if (!choosedCar) {
       return;
     }
-  
+
     const startDay = datePicker.start ? datePicker.start.getDate() : 0;
     const endDay = datePicker.end ? datePicker.end.getDate() : 0;
-    const countRentDays = endDay - startDay === 0 ? 1 : endDay - startDay;
-  
-    let price: number;
-  
+    const countRentDays = endDay - startDay === 0 ? 1 : endDay + 1 - startDay;
+
     if (
       countRentDays <= choosedCar.period.min.from ||
       (countRentDays >= choosedCar.period.min.from &&
         countRentDays <= choosedCar.period.min.to)
     ) {
-      price = countRentDays * choosedCar.price.min;
+      this.rentPrice = countRentDays * choosedCar.price.min;
     } else if (
       countRentDays >= choosedCar.period.mid.from &&
       countRentDays <= choosedCar.period.mid.to
     ) {
-      price = countRentDays * choosedCar.price.mid;
+      this.rentPrice = countRentDays * choosedCar.price.mid;
     } else if (
       countRentDays >= choosedCar.period.max.from &&
       countRentDays <= (choosedCar.period.max.to ?? Infinity)
     ) {
-      price = countRentDays * choosedCar.price.max;
-    } else {
-      return;
-    }
-  
-    this.rentPrice = price;
-    return price;
+      this.rentPrice = countRentDays * choosedCar.price.max;
+    } 
+
+    return;
   }
-  
+
   private updateCarsList(categoryName: Category['categoryName']): void {
     this.cars = this.getCarsList(categoryName);
   }
