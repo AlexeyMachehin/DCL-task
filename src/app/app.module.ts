@@ -9,9 +9,10 @@ import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { CurrencyFormatPipe } from './currency-format.pipe';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, CurrencyFormatPipe, CurrencyFormatPipe],
   imports: [
     BrowserModule,
     MatSelectModule,

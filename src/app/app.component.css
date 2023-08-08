@@ -1,5 +1,9 @@
 .wrapper {
-    display: flex;
-    align-items: center;
-    gap: 30px;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.rentPrice {
+  font-size: 20px;
 }
