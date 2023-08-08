@@ -1,33 +1,40 @@
-<mat-form-field>
-  <mat-label>Категория</mat-label>
-  <mat-select>
-    <mat-option
-      *ngFor="let category of data.categories"
-      [value]="category.categoryName"
-      >{{ category.categoryName }}</mat-option
-    >
-  </mat-select>
-</mat-form-field>
+<form class="wrapper" [formGroup]="form">
+  <mat-form-field>
+    <mat-label>Категория</mat-label>
+    <mat-select [formControl]="form.controls.category">
+      <mat-option
+        *ngFor="let category of data.categories"
+        [value]="category.categoryName"
+        >{{ category.categoryName }}</mat-option
+      >
+    </mat-select>
+  </mat-form-field>
 
-<mat-form-field>
-  <mat-label>Авто</mat-label>
-  <mat-select>
-    <mat-option
-      *ngFor="let car of data.categories[0].cars"
-      [value]="car.name"
-      >{{ car.name }}</mat-option
-    >
-  </mat-select>
-</mat-form-field>
+  <mat-form-field>
+    <mat-label>Авто</mat-label>
+    <mat-select [formControl]="form.controls.car">
+      <mat-option *ngFor="let car of cars" [value]="car.name">{{
+        car.name
+      }}</mat-option>
+    </mat-select>
+  </mat-form-field>
 
-<mat-form-field>
-  <mat-label>Период</mat-label>
-  <mat-date-range-input [rangePicker]="picker">
-    <input matStartDate placeholder="Начало" />
-    <input matEndDate placeholder="Конец" />
-  </mat-date-range-input>
-  <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-  <mat-date-range-picker #picker></mat-date-range-picker>
-</mat-form-field>
-
-<div>100</div>
+  <mat-form-field>
+    <mat-label>Период</mat-label>
+    <mat-date-range-input
+      [formGroup]="form.controls.datePicker"
+      [rangePicker]="picker">
+      <input
+        [formControl]="form.controls.datePicker.controls.start"
+        matStartDate
+        placeholder="Начало" />
+      <input
+        [formControl]="form.controls.datePicker.controls.end"
+        matEndDate
+        placeholder="Конец" />
+    </mat-date-range-input>
+    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-date-range-picker #picker></mat-date-range-picker>
+  </mat-form-field>
+  <div>{{ rentPrice }}</div>
+</form>
