@@ -36,7 +36,7 @@
     <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
     <mat-date-range-picker #picker></mat-date-range-picker>
   </mat-form-field>
-  <div class="rentPrice">
-    {{ rentPrice !== undefined ? (rentPrice | currencyFormat) : '' }}
+  <div class="rent-price">
+    {{ rentPrice | currencyFormat }}
   </div>
 </form>

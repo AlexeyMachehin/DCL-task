@@ -4,7 +4,11 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'currencyFormat',
 })
 export class CurrencyFormatPipe implements PipeTransform {
-  transform(value: number): string {
+  transform(value: number | undefined): string {
+    if (value == null) {
+      return '';
+    }
+
     const formatter = new Intl.NumberFormat('ru-RU', {
       style: 'currency',
       currency: 'RUB',

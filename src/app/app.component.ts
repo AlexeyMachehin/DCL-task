@@ -3,6 +3,8 @@ import { data } from './mock-data';
 import { NonNullableFormBuilder, Validators } from '@angular/forms';
 import { Car, Category } from './data-type';
 
+const ONE_DAY = 1;
+const MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -23,8 +25,8 @@ export class AppComponent implements OnInit {
       Validators.required,
     ),
     datePicker: this.formBuild.group({
-      start: this.formBuild.control<Date | null>(null, Validators.required),
-      end: this.formBuild.control<Date | null>(null, Validators.required),
+      start: this.formBuild.control<string | null>(null, Validators.required),
+      end: this.formBuild.control<string | null>(null, Validators.required),
     }),
     car: this.formBuild.control<string | null>(
       {
@@ -36,29 +38,15 @@ export class AppComponent implements OnInit {
   });
 
   public ngOnInit(): void {
-    this.form.controls.category.valueChanges.subscribe(value => {
-      if (value != null) {
-        this.form.controls.car.enable();
-        this.updateCarsList(value);
-      }
-    });
-
-    this.form.valueChanges.subscribe(value => {
-      this.form.markAllAsTouched();
-
-      const { category, datePicker, car } = value;
-
-      if (this.form.valid && category && datePicker && car) {
-        this.getRentPrice(category, datePicker, car);
-      }
-    });
+    this.subscribeToCategoryFormControlChanges();
+    this.subscribeToFormControlsChanges();
   }
 
   private getRentPrice(
     category: Category['categoryName'],
     datePicker: Partial<{
-      start: Date | null;
-      end: Date | null;
+      start: string | null;
+      end: string | null;
     }>,
     car: Car['name'],
   ): number | undefined {
@@ -70,27 +58,30 @@ export class AppComponent implements OnInit {
       return;
     }
 
-    const startDay = datePicker.start ? datePicker.start.getDate() : 0;
-    const endDay = datePicker.end ? datePicker.end.getDate() : 0;
-    const countRentDays = endDay - startDay === 0 ? 1 : endDay + 1 - startDay;
+    const startDay = datePicker.start ? new Date(datePicker.start) : new Date();
+    const endDay = datePicker.end ? new Date(datePicker.end) : new Date();
 
+    const countRentDays =
+      Math.round(
+        (endDay.getTime() - startDay.getTime()) / MILLISECONDS_IN_DAY,
+      ) + ONE_DAY;
+
+    const { min, mid, max } = choosedCar.period;
     if (
-      countRentDays <= choosedCar.period.min.from ||
-      (countRentDays >= choosedCar.period.min.from &&
-        countRentDays <= choosedCar.period.min.to)
+      countRentDays <= min.from ||
+      (countRentDays >= min.from && countRentDays <= min.to)
     ) {
       this.rentPrice = countRentDays * choosedCar.price.min;
-    } else if (
-      countRentDays >= choosedCar.period.mid.from &&
-      countRentDays <= choosedCar.period.mid.to
-    ) {
+      return;
+    }
+    if (countRentDays >= mid.from && countRentDays <= mid.to) {
       this.rentPrice = countRentDays * choosedCar.price.mid;
-    } else if (
-      countRentDays >= choosedCar.period.max.from &&
-      countRentDays <= (choosedCar.period.max.to ?? Infinity)
-    ) {
+      return;
+    }
+    if (countRentDays >= max.from && countRentDays <= (max.to ?? Infinity)) {
       this.rentPrice = countRentDays * choosedCar.price.max;
-    } 
+      return;
+    }
 
     return;
   }
@@ -105,5 +96,26 @@ export class AppComponent implements OnInit {
         category => category.categoryName === categoryName,
       )?.cars ?? []
     );
+  }
+
+  private subscribeToCategoryFormControlChanges(): void {
+    this.form.controls.category.valueChanges.subscribe(value => {
+      if (value != null) {
+        this.form.controls.car.enable();
+        this.updateCarsList(value);
+      }
+    });
+  }
+
+  private subscribeToFormControlsChanges(): void {
+    this.form.valueChanges.subscribe(value => {
+      this.form.markAllAsTouched();
+
+      const { category, datePicker, car } = value;
+
+      if (this.form.valid && category && datePicker && car) {
+        this.getRentPrice(category, datePicker, car);
+      }
+    });
   }
 }
