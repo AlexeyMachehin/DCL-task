@@ -13,7 +13,7 @@ const MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
 export class AppComponent implements OnInit {
   private readonly formBuild = inject(NonNullableFormBuilder);
 
-  public rentPrice: number | undefined;
+  public rentPrice = 0;
 
   protected readonly data = data;
 
@@ -49,17 +49,25 @@ export class AppComponent implements OnInit {
       end: string | null;
     }>,
     car: Car['name'],
-  ): number | undefined {
+  ): number {
     const choosedCar = this.getCarsList(category).find(
       currentCar => currentCar.name === car,
     );
 
     if (!choosedCar) {
-      return;
+      return 0;
     }
 
-    const startDay = datePicker.start ? new Date(datePicker.start) : new Date();
-    const endDay = datePicker.end ? new Date(datePicker.end) : new Date();
+    if (datePicker.start == null || datePicker.end == null) {
+      return 0;
+    }
+
+    if (datePicker.start > datePicker.end) {
+      return 0;
+    }
+
+    const startDay = new Date(datePicker.start);
+    const endDay = new Date(datePicker.end);
 
     const countRentDays =
       Math.round(
@@ -71,19 +79,16 @@ export class AppComponent implements OnInit {
       countRentDays <= min.from ||
       (countRentDays >= min.from && countRentDays <= min.to)
     ) {
-      this.rentPrice = countRentDays * choosedCar.price.min;
-      return;
+      return countRentDays * choosedCar.price.min;
     }
     if (countRentDays >= mid.from && countRentDays <= mid.to) {
-      this.rentPrice = countRentDays * choosedCar.price.mid;
-      return;
+      return countRentDays * choosedCar.price.mid;
     }
     if (countRentDays >= max.from && countRentDays <= (max.to ?? Infinity)) {
-      this.rentPrice = countRentDays * choosedCar.price.max;
-      return;
+      return countRentDays * choosedCar.price.max;
     }
 
-    return;
+    return 0;
   }
 
   private updateCarsList(categoryName: Category['categoryName']): void {
@@ -114,7 +119,7 @@ export class AppComponent implements OnInit {
       const { category, datePicker, car } = value;
 
       if (this.form.valid && category && datePicker && car) {
-        this.getRentPrice(category, datePicker, car);
+        this.rentPrice = this.getRentPrice(category, datePicker, car);
       }
     });
   }
